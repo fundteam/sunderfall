@@ -374,7 +374,7 @@
           dm: 30,
           bs: 1,
           sk: "aeg",
-          cdn: 15,
+          cdn: 30,
         },
         templar: {
           hp: 600,
@@ -543,7 +543,7 @@
           ch: 4,
           br: 1,
           cnt: 2,
-          sp: "vang",
+          sp: "vangu",
           c: [90, 100, 130],
           hp: [45, 70, 100],
           d: [7, 11, 16],
@@ -918,6 +918,10 @@
               [330, 80],
               [260, 80],
               [260, 120],
+              [260, 230],
+              [390, 230],
+              [390, 60],
+              [490, 60],
             ],
           ],
           SP: [
@@ -3545,6 +3549,14 @@
         },
       };
       const HT = {
+        horn2: (B) => {
+          B(7, 3, 3, 3, WH);
+          B(5, 1, 2, 3, WH);
+          B(3, 0, 2, 2, WH);
+          B(20, 3, 3, 3, WH);
+          B(23, 1, 2, 3, WH);
+          B(25, 0, 2, 2, WH);
+        },
         horns: (B) => {
           B(7, 0, 3, 6, WH);
           B(20, 0, 3, 6, WH);
@@ -4071,6 +4083,7 @@
             ey: "#ff0",
           }),
       });
+      const RED = ["#c8301c", "#ff6048", "#7a1408"];
       const HLY = ["#f4e8a8", "#fff8d0", "#c8b060"],
         WHT = ["#f0f0f8", "#fff", "#b8b8c8"],
         ROCK = ["#e8e8e8", "#fff", "#a0a0a0"];
@@ -4202,32 +4215,32 @@
             ey: "#ff0",
           }),
         skelf: (f) => hum(f, { sk: BNE, s: 0.8, ar: BNE, wp: "dag" }),
-        vang: (f) =>
+        vangu: (f) =>
           hum(f, {
-            sk: DMN,
+            sk: RED,
             s: 1.1,
-            ar: DK,
-            hat: "horns",
+            ar: ["#a02010", "#d84028", "#600c06"],
+            hat: "horn2",
             wp: "axe",
             ey: "#ff0",
           }),
         bers2: (f) =>
           hum(f, {
-            sk: DMN,
+            sk: RED,
             s: 1.15,
-            ar: RE,
-            hat: "horns",
+            ar: ["#701008", "#a02818", "#400804"],
+            hat: "horn2",
             wp: "axe",
-            ey: "#ff0",
+            ey: "#ffd24a",
           }),
         jugr: (f) =>
           hum(f, {
-            sk: DMN,
+            sk: RED,
             s: 2,
-            ar: DK,
-            hat: "horns",
+            ar: ["#701008", "#a02818", "#400804"],
+            hat: "horn2",
             wp: "club",
-            ey: "#ff0",
+            ey: "#ffd24a",
           }),
         nest: (f, t) =>
           mk(48, 72, (B, RB) => {
@@ -4759,7 +4772,7 @@
             X.fillStyle = "#fff";
             X.fillRect(f.x2 - 1, f.y2 - 1, 2, 2);
           } else if (f.s == "o") {
-            const k = 1 - f.t / 0.3;
+            const k = Math.max(0, 1 - f.t / 0.3);
             X.fillStyle = "#ffa04088";
             X.beginPath();
             X.arc(f.x, f.y, 34 * k, 0, 7);
