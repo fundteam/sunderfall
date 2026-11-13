@@ -1890,12 +1890,7 @@
             let nx = null,
               bd = 60;
             En.forEach((o) => {
-              if (
-                !o.dead &&
-                !seen.has(o) &&
-                (p.cf || !E[o.k].fly) &&
-                o.k != "egg"
-              ) {
+              if (!o.dead && !seen.has(o) && o.k != "egg") {
                 const d = dist(o, prev);
                 if (d < bd) {
                   bd = d;
