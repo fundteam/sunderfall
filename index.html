@@ -102,18 +102,29 @@
         max-width: none;
         margin: 0;
         z-index: 9;
-        background: #1a1410;
-        display: flex;
-        flex-direction: column;
-        padding: max(6px, env(safe-area-inset-top)) 6px
-          max(6px, env(safe-area-inset-bottom));
+        background: #000;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
       }
       #g.fs canvas {
-        flex: 1;
-        min-height: 0;
         width: 100%;
         height: 100%;
         object-fit: contain;
+        border: 0;
+      }
+      #g.fs #hud {
+        position: absolute;
+        top: calc(4px + env(safe-area-inset-top));
+        left: calc(4px + env(safe-area-inset-left));
+        z-index: 5;
+        background: #000a;
+        padding: 2px 4px;
+        border-radius: 4px;
+        gap: 4px;
+      }
+      #g.fs button {
+        padding: 3px 6px;
+        font-size: 11px;
       }
     </style>
   </head>
@@ -126,14 +137,15 @@
         ><button id="au">Auto: ON</button><button id="sp">x1</button
         ><button id="fs">⛶</button>
       </div>
-      <canvas id="c" width="960" height="640"></canvas>
+      <canvas id="c" width="1140" height="640"></canvas>
       <div id="ov"></div>
     </div>
     <script>
       const C = document.getElementById("c"),
         X = C.getContext("2d"),
-        W = 480,
+        W = 570,
         H = 320,
+        DX = 45,
         $ = (i) => document.getElementById(i);
       const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
       let RT = [],
@@ -374,7 +386,7 @@
           dm: 30,
           bs: 1,
           sk: "aeg",
-          cdn: 30,
+          cdn: 15,
         },
         templar: {
           hp: 600,
@@ -1572,7 +1584,12 @@
         GP = [];
         UL = [];
         RD = [];
-        AL = (LV.altars || []).map((a) => ({ x: a[0], y: a[1], p: 0, on: 0 }));
+        AL = (LV.altars || []).map((a) => ({
+          x: a[0] + DX,
+          y: a[1],
+          p: 0,
+          on: 0,
+        }));
         AW = 12;
         ended = 0;
         OV = 0;
@@ -2784,9 +2801,16 @@
         MC = Math.max(MC, LV.ch);
         HK =
           (HS == "elron" && MC >= 2) || (HS == "malax" && MC >= 4) ? HS : "leo";
-        SP = LV.SP;
+        SP = LV.SP.map((p) => [p[0] + DX, p[1]]);
         WV = LV.wv;
-        RT = (LV.R || [LV.P]).map((pts) => {
+        RT = (LV.R || [LV.P]).map((pts0) => {
+          const pts = pts0.map((p) =>
+            p[0] <= -10
+              ? [-10, p[1]]
+              : p[0] >= 490
+                ? [W + 10, p[1]]
+                : [p[0] + DX, p[1]],
+          );
           const L = [0];
           for (let j = 1; j < pts.length; j++)
             L.push(
@@ -2926,6 +2950,17 @@
       BG.width = W * 2;
       BG.height = H * 2;
       function buildBG(th) {
+        th = {
+          ...th,
+          fire: th.fire.map((f) => [f[0] + DX, f[1], f[2]]),
+          camp: (th.camp || []).map((c) => [c[0] + DX, c[1]]),
+          rv:
+            th.rv &&
+            th.rv.map((p) => [
+              p[0] <= 0 ? -10 : p[0] >= 490 ? W + 10 : p[0] + DX,
+              p[1],
+            ]),
+        };
         sd = 7 + LI * 13;
         const b = BG.getContext("2d");
         b.setTransform(2, 0, 0, 2, 0, 0);
@@ -3010,6 +3045,8 @@
         }
         const dc = th.dec;
         if (dc.includes("castle")) {
+          b.save();
+          b.translate(DX, 0);
           r(236, 20, 44, 6, "#5e8a46");
           r(250, 10, 16, 12, "#cfc7bb");
           r(250, 10, 16, 1, "#e8e2d8");
@@ -3020,8 +3057,11 @@
           r(255, 14, 6, 8, "#5a4a5a");
           r(248, 8, 2, 3, "#334");
           r(266, 8, 2, 3, "#334");
+          b.restore();
         }
         if (dc.includes("gate")) {
+          b.save();
+          b.translate(DX, 0);
           r(222, 0, 10, 34, "#8a88a0");
           r(250, 0, 10, 34, "#8a88a0");
           r(222, 0, 3, 34, "#b0aec8");
@@ -3029,6 +3069,7 @@
           r(232, 0, 18, 10, "#8a88a0");
           r(234, 10, 14, 24, "#7a3acf88");
           r(237, 14, 8, 20, "#c08aff88");
+          b.restore();
         }
         (th.camp || []).forEach(([x, y]) => {
           for (let i = 0; i < 11; i++) {
@@ -4606,8 +4647,9 @@
           X.drawImage(c, -w / 2, -h / 2, w, h);
           X.restore();
         });
-        LV.th.fire.forEach(([x, y, pu]) => {
-          const fh = 4 + Math.sin(tm * 18 + x) * 2;
+        LV.th.fire.forEach(([x0, y, pu]) => {
+          const x = x0 + DX,
+            fh = 4 + Math.sin(tm * 18 + x) * 2;
           R(x - 3, y - fh, 7, fh + 3, pu ? "#9a40ff" : "#ff7a1a");
           R(x - 1, y - fh / 2, 3, fh / 2 + 2, pu ? "#e0b0ff" : "#ffd24a");
           X.fillStyle = pu ? "#b060ff22" : "#ff8a2a22";
@@ -4833,7 +4875,7 @@
           X.font = "bold 11px monospace";
           txt(
             "Wave " + (S.wave + 1) + " เริ่มใน " + Math.ceil(S.nx) + " วิ",
-            150,
+            W / 2 - 50,
             16,
             "#e8b84a",
           );
@@ -4862,7 +4904,7 @@
         txt(S.wave + "/" + WV.length, 124, 309);
         const act = sel != null && !tw[sel];
         dk().forEach((k, i) => {
-          const bx = 340 + (i % 4) * 34,
+          const bx = W - 140 + (i % 4) * 34,
             by = 284 - ((i / 4) | 0) * 36,
             ok = act && S.gold >= T[k].c[0];
           pan(bx, by, 32, 34);
@@ -5007,7 +5049,15 @@
         const g = $("g");
         if (!g.classList.contains("fs")) {
           g.classList.add("fs");
-          g.requestFullscreen && g.requestFullscreen().catch(() => {});
+          g.requestFullscreen &&
+            g
+              .requestFullscreen()
+              .then(() => {
+                try {
+                  screen.orientation.lock("landscape").catch(() => {});
+                } catch (e) {}
+              })
+              .catch(() => {});
         } else {
           g.classList.remove("fs");
           document.fullscreenElement && document.exitFullscreen();
